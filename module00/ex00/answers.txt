@@ -1,0 +1,11 @@
+- Command to list installed packages:
+	pip freeze | awk '{FS=" |==" ; print $1}'
+
+- Command to list installed packages and their versions:
+	pip list
+
+- Command to get package metadata of numpy:
+	pip show numpy
+
+- Command to search for "tesseract":
+	pip search tesseract
