@@ -1,5 +1,19 @@
 class Vector:
 
+    TUPLE_SIZE_ERR = "Vector entry tuple {} needs 2 elements, found {}."
+    TUPLE_NON_INT_RANGE_ERR = "Vector entry tuple {} contains non-integer boundry."
+    ROW_VECTOR_NON_FLT_ERR = "Row vectors must contain floats only, found ({}) {}."
+    COLUMN_VECTOR_NON_FLOAT_ERR = "Column vectors must contain lists of float only, found ({}) {}."
+    COLUMN_VECTOR_SHAPE_ERR = "Column vectors are of shape Nx1, found ({})."
+    DIFFERENT_SHAPE_ERR = "Cannot {} vectors of different shapes."
+    DIFFERENT_TYPES_ERR = "Cannot {} Vector to {}."
+    INVALID_VECTOR_VALUE_ERR = "Vector values must be float or lists of float, found ({}) {}."
+    INVALID_VECTOR_ENTRY_ERR = "Invalid entry, found ({}) {}."
+    ZERO_DIVISION_ERR = "Cannot divide Vector by Zero."
+    INVALID_DIVIDOR_ERR = "Division by int or float only, found {}."
+    INVALID_MULTIPLIER_ERR = "Multiplication with int or float only, found {}."
+
+
     @classmethod
     def init_range(cls, start, end):
         return [[float(i)] for i in range(start, end)]
@@ -14,8 +28,8 @@ class Vector:
             self.shape = [len(self.values), 1]
 
         elif isinstance(entry, tuple):
-            assert len(entry) == 2, "Vector entry tuple {} needs 2 elements, found {}.".format(entry, len(tuple))
-            assert type(entry[0]) == int and type(entry[1]) == int, "Vector entry tuple {} contains non-integer range.".format(entry)
+            assert len(entry) == 2, Vector.TUPLE_SIZE_ERR.format(entry, len(entry))
+            assert type(entry[0]) == int and type(entry[1]) == int, Vector.TUPLE_NON_INT_RANGE_ERR.format(entry)
             self.values = Vector.init_range(entry[0], entry[1])
             self.shape = [len(self.values), 1]
 
@@ -24,55 +38,107 @@ class Vector:
             if type(entry[0]) == float:
                 for e in entry:
                     if type(e) != float:
-                        raise ValueError("Row vectors must contain floats only, found {}".format(type(e)))
+                        raise ValueError(Vector.ROW_VECTOR_NON_FLT_ERR.format(e, type(e)))
                 self.shape = [1, len(self.values)]
             elif type(entry[0]) == list:
                 for e in entry:
-                    if type(e[0]) != float:
-                        raise ValueError("Column vectors must contain floats only, found ({} -> {}).".format(e, type(e[0])))
+                    if type(e) != list or type(e[0]) != float:
+                        raise ValueError(Vector.COLUMN_VECTOR_NON_FLOAT_ERR.format(e, type(e)))
                     if len(e) != 1:
-                        raise ValueError("Column vectors are of shape Nx1, found ({} -> Nx{}).".format(e, len(e)))
+                        raise ValueError(Vector.COLUMN_VECTOR_SHAPE_ERR.format(e))
                 self.shape = [len(self.values), 1]
+            else:
+                raise ValueError(Vector.INVALID_VECTOR_VALUE_ERR.format(entry[0], type(entry[0])))
+        else:
+            raise TypeError(Vector.INVALID_VECTOR_ENTRY_ERR.format(entry, type(entry)))
+
+    def is_column(self):
+        return True if type(self.shape[0]) == list else False
+
+    def is_row(self):
+        return True if type(self.shape[0]) == float else False
+
+    def same_shape_as(self, other):
+        return (self.is_row() and other.is_row()) or (self.is_column() and other.is_column())
 
     def __add__(self, other):
-        if type(other) == int:
-            self.values = [e + other for e in self.values]
-        elif type(other) == Vector:
-            if self.shape == other.shape:
-                if self.shape[0] == 1:
-                    return [self.values[i] + other.values[i] for i in range(self.shape[1])]
-                return [self.values[i][0] + other.values[i][0] for i in range(self.shape[0])]
-            raise TypeError("Cannot add vectors of different shapes ({} and {})".format())
+        try:
+            if type(other) in [int, float]:  # If other is integer or float
+                if type(self.values[0]) == float:
+                    return Vector([e + other for e in self.values])
+                return Vector([[e[0] + other] for e in self.values])
+            elif isinstance(other, Vector):  # Else, if other is a Vector
+                if self.shape == other.shape:
+                    if self.shape == [1, 1] and not self.same_shape_as(other):
+                        raise TypeError(Vector.DIFFERENT_SHAPE_ERR.format("add"))
+                    return Vector([a + b if self.is_row() else [a[0] + b[0]] for a, b in zip(self.values, other.values)])
+            raise TypeError(Vector.DIFFERENT_TYPES_ERR.format("add", type(other)))
+        except TypeError as E:
+            print("{}: {}".format(type(E.__class__), E))
 
-    def __radd(self, other):
-        pass
+    def __radd__(self, other):
+        return self + other
 
     def __sub__(self, other):
-        pass
+        try:
+            if type(other) in [int, float]:  # If other is integer or float
+                if type(self.values[0]) == float:
+                    return Vector([e - other for e in self.values])
+                return Vector([[e[0] - other] for e in self.values])
+            elif isinstance(other, Vector):  # Else, if other is a Vector
+                if self.shape == other.shape:
+                    if self.shape == [1, 1] and not self.same_shape_as(other):
+                        raise TypeError(Vector.DIFFERENT_SHAPE_ERR.format("subtract"))
+                    return Vector([a - b if self.is_row() else [a[0]-b[0]] for a, b in zip(self.values, other.values)])
+            raise TypeError(Vector.DIFFERENT_TYPES_ERR.format("subtract", type(other)))
+        except TypeError as E:
+            print("{}: {}".format(type(E.__class__), E))
 
     def __rsub__(self, other):
-        pass
+        return self - other
 
     def __truediv__(self, other):
-        pass
+        try:
+            assert type(other) in [int, float], Vector.INVALID_DIVIDOR_ERR.format(type(other))
+            return Vector([e / other if self.is_row() else [e[0] / other] for e in self.values])
+        except ZeroDivisionError:
+            print(Vector.ZERO_DIVISION_ERR)
+        except AssertionError as E:
+            print("{}: {}".format(type(E.__class__), E))
 
     def __rtruediv__(self, other):
-        pass
+        try:
+            assert type(other) in [int, float], Vector.INVALID_DIVIDOR_ERR.format(type(other))
+            return Vector([other / e if self.is_row() else [other / e[0]] for e in self.values])
+        except ZeroDivisionError:
+            print(Vector.ZERO_DIVISION_ERR)
+        except AssertionError as E:
+            print("{}: {}".format(type(E.__class__), E))
 
     def __mul__(self, other):
-        pass
+        try:
+            assert type(other) in [int, float], Vector.INVALID_MULTIPLIER_ERR.format(type(other))
+            return [e * other if self.is_row() else [e * other] for e in self.values]
+        except AssertionError as E:
+            print("{}: {}".format(type(E.__class__), E))
 
     def __rmul__(self, other):
-        pass
+        return self * other
 
-    def __str__(self, other):
-        pass
+    def __str__(self):
+        txt = ""
+        if self.is_row():
+            txt += ', '.join([str(e) for e in self.values])
+        else:
+            txt += '\n'.join([str(e[0]) for e in self.values])
+        txt += "\nShape: {}x{}".format(self.shape[0], self.shape[1])
+        return txt
 
-    def __repr__(self, other):
-        pass
+    def __repr__(self):
+        return "Vector({})".format(self.values)
 
     def dot(self, other):
         pass
 
-    def T(self, other):
-        pass
+    def T(self):
+        return Vector([[e] if self.is_row() else e[0] for e in self.values])

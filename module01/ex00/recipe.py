@@ -6,6 +6,7 @@ def isinteger(string):
         return True
     return False
 
+
 class Recipe:
 
     def __init__(self, name, cooking_lvl, cooking_time, ingredients, recipe_type, description=None):
@@ -27,11 +28,11 @@ class Recipe:
         """Return the string to print with the recipe info"""
 
         txt = "Name: {}\nLevel: {}\nCooking time: {}min\nIngredients: {}\nDescription: {}\nRecipe type\n{}".format(
-                self.name,
-                self.cooking_lvl,
-                self.cooking_time,
-                self.ingredients,
-                self.description,
-                self.recipe_type)
+            self.name,
+            self.cooking_lvl,
+            self.cooking_time,
+            self.ingredients,
+            self.description,
+            self.recipe_type)
 
         return txt
