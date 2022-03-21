@@ -13,8 +13,8 @@ class Vector:
     INVALID_MULTIPLIER_ERR = "Multiplication with int or float only, found {}."
     NOT_SAME_SHAPE_ERR = "Vectors of unmatched shapes."
 
-    @classmethod
-    def init_range(cls, start, end):
+    @staticmethod
+    def init_range(start, end):
         return [[float(i)] for i in range(start, end)]
 
     def __init__(self, entry):

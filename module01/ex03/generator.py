@@ -24,10 +24,10 @@ def generator(text, sep=" ", option=None):
                 yield elm
 
         elif option == "unique":
-            words = dict()
+            words = set()
             for elm in array:
-                if elm not in words.keys():
-                    words[elm] = None
+                if elm not in words:
+                    words.add(elm)
                     yield elm
 
     except AssertionError as E:

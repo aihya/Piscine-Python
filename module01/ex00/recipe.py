@@ -27,7 +27,7 @@ class Recipe:
     def __str__(self):
         """Return the string to print with the recipe info"""
 
-        txt = "Name: {}\nLevel: {}\nCooking time: {}min\nIngredients: {}\nDescription: {}\nRecipe type\n{}".format(
+        txt = "Name: {}\nLevel: {}\nCooking time: {}min\nIngredients: {}\nRecipe type: {}\nDescription: {}".format(
             self.name,
             self.cooking_lvl,
             self.cooking_time,
