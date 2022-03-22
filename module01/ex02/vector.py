@@ -19,18 +19,18 @@ class Vector:
 
     def __init__(self, entry):
         self.values = entry
-        self.shape = [0, 0]
+        self.shape = None
 
         # Initialize self.values with init_range class method.
         if isinstance(entry, int):
             self.values = Vector.init_range(0, entry)
-            self.shape = [len(self.values), 1]
+            self.shape = (len(self.values), 1)
 
         elif isinstance(entry, tuple):
             assert len(entry) == 2, Vector.TUPLE_SIZE_ERR.format(entry, len(entry))
             assert type(entry[0]) == int and type(entry[1]) == int, Vector.TUPLE_NON_INT_RANGE_ERR.format(entry)
             self.values = Vector.init_range(entry[0], entry[1])
-            self.shape = [len(self.values), 1]
+            self.shape = (len(self.values), 1)
 
         # Check the coherence of entry.
         elif type(entry) == list:
@@ -38,14 +38,14 @@ class Vector:
                 for e in entry:
                     if type(e) != float:
                         raise ValueError(Vector.ROW_VECTOR_NON_FLT_ERR.format(e, type(e)))
-                self.shape = [1, len(self.values)]
+                self.shape = (1, len(self.values))
             elif type(entry[0]) == list:
                 for e in entry:
                     if type(e) != list or type(e[0]) != float:
                         raise ValueError(Vector.COLUMN_VECTOR_NON_FLOAT_ERR.format(e, type(e)))
                     if len(e) != 1:
                         raise ValueError(Vector.COLUMN_VECTOR_SHAPE_ERR.format(e))
-                self.shape = [len(self.values), 1]
+                self.shape = (len(self.values), 1)
             else:
                 raise ValueError(Vector.INVALID_VECTOR_VALUE_ERR.format(entry[0], type(entry[0])))
         else:
@@ -58,45 +58,41 @@ class Vector:
         return True if type(self.values[0]) == float else False
 
     def same_shape_as(self, other):
-        return (self.is_row() and other.is_row()) or (self.is_column() and other.is_column())
+        return True if type(self.values[0]) == type(other.values[0]) else False
 
     def __add__(self, other):
         try:
-            if type(other) in [int, float]:  # If other is integer or float
-                if type(self.values[0]) == float:
-                    return Vector([e + other for e in self.values])
-                return Vector([[e[0] + other] for e in self.values])
-            elif isinstance(other, Vector):  # Else, if other is a Vector
-                if self.shape == other.shape:
-                    if self.shape == [1, 1] and not self.same_shape_as(other):
-                        raise TypeError(Vector.DIFFERENT_SHAPE_ERR.format("add"))
-                    arr = [a + b if self.is_row() else [a[0] + b[0]] for a, b in zip(self.values, other.values)]
-                    return Vector(arr)
+            if isinstance(other, Vector):  # If other is a Vector
+                assert self.same_shape_as(other), Vector.NOT_SAME_SHAPE_ERR
+                if self.shape == [1, 1]:
+                    raise TypeError(Vector.DIFFERENT_SHAPE_ERR.format("add"))
+                arr = [a + b if self.is_row() else [a[0] + b[0]] for a, b in zip(self.values, other.values)]
+                return Vector(arr)
             raise TypeError(Vector.DIFFERENT_TYPES_ERR.format("add", type(other)))
         except TypeError as E:
             print("{}: {}".format(type(E).__name__, E))
+        except AssertionError as E:
+            print("{}: {}".format(type(E).__name__, E))
 
     def __radd__(self, other):
-        return self + other
+        return other + self
 
     def __sub__(self, other):
         try:
-            if type(other) in [int, float]:  # If other is integer or float
-                if type(self.values[0]) == float:
-                    return Vector([e - other for e in self.values])
-                return Vector([[e[0] - other] for e in self.values])
-            elif isinstance(other, Vector):  # Else, if other is a Vector
-                if self.shape == other.shape:
-                    if self.shape == [1, 1] and not self.same_shape_as(other):
-                        raise TypeError(Vector.DIFFERENT_SHAPE_ERR.format("subtract"))
-                    arr = [a - b if self.is_row() else [a[0] - b[0]] for a, b in zip(self.values, other.values)]
-                    return Vector(arr)
-            raise TypeError(Vector.DIFFERENT_TYPES_ERR.format("subtract", type(other)))
+            if isinstance(other, Vector):  # If other is a Vector
+                assert self.same_shape_as(other), Vector.NOT_SAME_SHAPE_ERR
+                if self.shape == [1, 1]:
+                    raise TypeError(Vector.DIFFERENT_SHAPE_ERR.format("add"))
+                arr = [a - b if self.is_row() else [a[0] - b[0]] for a, b in zip(self.values, other.values)]
+                return Vector(arr)
+            raise TypeError(Vector.DIFFERENT_TYPES_ERR.format("add", type(other)))
         except TypeError as E:
+            print("{}: {}".format(type(E).__name__, E))
+        except AssertionError as E:
             print("{}: {}".format(type(E).__name__, E))
 
     def __rsub__(self, other):
-        return self - other
+        return other - self
 
     def __truediv__(self, other):
         try:
@@ -107,19 +103,22 @@ class Vector:
         except AssertionError as E:
             print("{}: {}".format(type(E).__name__, E))
 
+    # def __rtruediv__(self, other):
+    #     try:
+    #         assert type(other) in [int, float], Vector.INVALID_DIVISOR_ERR.format(type(other))
+    #         return Vector([other / e if self.is_row() else [other / e[0]] for e in self.values])
+    #     except ZeroDivisionError as E:
+    #         print("{}: {}".format(type(E).__name__, Vector.ZERO_DIVISION_ERR))
+    #     except AssertionError as E:
+    #         print("{}: {}".format(type(E).__name__, E))
+
     def __rtruediv__(self, other):
-        try:
-            assert type(other) in [int, float], Vector.INVALID_DIVISOR_ERR.format(type(other))
-            return Vector([other / e if self.is_row() else [other / e[0]] for e in self.values])
-        except ZeroDivisionError as E:
-            print("{}: {}".format(type(E).__name__, Vector.ZERO_DIVISION_ERR))
-        except AssertionError as E:
-            print("{}: {}".format(type(E).__name__, E))
+        print("ValueError: A scalar cannot be divided by a Vector.")
 
     def __mul__(self, other):
         try:
             assert type(other) in [int, float], Vector.INVALID_MULTIPLIER_ERR.format(type(other))
-            return [e * other if self.is_row() else [e[0] * other] for e in self.values]
+            return Vector([e * other if self.is_row() else [e[0] * other] for e in self.values])
         except AssertionError as E:
             print("{}: {}".format(type(E).__name__, E))
 
@@ -129,9 +128,14 @@ class Vector:
     def __str__(self):
         txt = ""
         if self.is_row():
-            txt += "  ".join([str(e) for e in self.values])
+            txt += "[{}]".format(' '.join([str(e) for e in self.values]))
         else:
-            txt += '\n'.join([str(e[0]) for e in self.values])
+            arr = [str(e[0]) for e in self.values]
+            _mx = len(max(arr, key=len))
+            for i, e in enumerate(arr):
+                arr[i] = '[{elm:>{width}}]'.format(elm=e, width=_mx)
+            txt += "{}".format('\n'.join(arr))
+
         txt += "\nShape: {}x{}".format(self.shape[0], self.shape[1])
         return txt
 
