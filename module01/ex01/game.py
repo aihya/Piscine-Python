@@ -1,6 +1,6 @@
 class GotCharacter:
     """A class representing a character from GoT. I don't watch that stuff."""
-    def __init__(self, first_name=None, is_alive=True):
+    def __init__(self, first_name, is_alive=True):
         self.first_name = first_name
         self.is_alive = is_alive
 

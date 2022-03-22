@@ -8,7 +8,7 @@ class Vector:
     DIFFERENT_TYPES_ERR = "Cannot {} Vector to {}."
     INVALID_VECTOR_VALUE_ERR = "Vector values must be float or lists of float, found ({}) {}."
     INVALID_VECTOR_ENTRY_ERR = "Invalid entry, found ({}) {}."
-    ZERO_DIVISION_ERR = "Cannot divide Vector by Zero."
+    ZERO_DIVISION_ERR = "Cannot divide by Zero."
     INVALID_DIVISOR_ERR = "Division by int or float only, found {}."
     INVALID_MULTIPLIER_ERR = "Multiplication with int or float only, found {}."
     NOT_SAME_SHAPE_ERR = "Vectors of unmatched shapes."
@@ -129,7 +129,7 @@ class Vector:
     def __str__(self):
         txt = ""
         if self.is_row():
-            txt += ', '.join([str(e) for e in self.values])
+            txt += "  ".join([str(e) for e in self.values])
         else:
             txt += '\n'.join([str(e[0]) for e in self.values])
         txt += "\nShape: {}x{}".format(self.shape[0], self.shape[1])
