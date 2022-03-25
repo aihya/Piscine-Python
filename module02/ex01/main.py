@@ -1,9 +1,18 @@
-def what_are_the_vars(*args):
-    pass
+def what_are_the_vars(*args, **kwargs):
+    obj = ObjectC()
+
+    for i, arg in enumerate(args):
+        setattr(obj, 'var_{}'.format(i), arg)
+
+    for key in kwargs.keys():
+        if getattr(obj, key, None) is not None:
+            return None
+        setattr(obj, key, kwargs[key])
+
+    return obj
 
 
 class ObjectC(object):
-
     def __init__(self):
         pass
 
@@ -14,7 +23,7 @@ def doom_printer(obj):
         print("end")
         return
     for attr in dir(obj):
-        if attr[0] != '-':
+        if attr[0] != '_':
             value = getattr(obj, attr)
             print("{}: {}".format(attr, value))
     print("end")
@@ -35,3 +44,4 @@ if __name__ == "__main__":
     doom_printer(obj)
     obj = what_are_the_vars(42, "Yes", a=10, var_2="world")
     doom_printer(obj)
+
