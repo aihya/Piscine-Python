@@ -1,9 +1,19 @@
 def what_are_the_vars(*args, **kwargs):
+    """Add new attributes to an instance of the class ObjectC.
+    Args:
+        *args: Set of arguments without names.
+        **kwargs: dictionary of key: value pairs.
+    Returns:
+        Instance of class ObjectC if all attributes are set.
+        Otherwise, return None if an attribute already exist.
+    """
     obj = ObjectC()
 
+    # Set 'args' first: Suffix the index of the corresponding arg with 'var_'.
     for i, arg in enumerate(args):
         setattr(obj, 'var_{}'.format(i), arg)
 
+    # Set 'kwargs' second: If 'key' already exist, return None. Otherwise add it to the set of attributes.
     for key in kwargs.keys():
         if getattr(obj, key, None) is not None:
             return None
