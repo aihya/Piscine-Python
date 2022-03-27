@@ -8,4 +8,19 @@ def ft_reduce(function_to_apply, iterable):
     None if the iterable can not be used by the function.
     """
 
-    for elm in iterable:
+    if callable(function_to_apply):
+        if hasattr(iterable, '__iter__'):
+            if len(iterable) == 0:
+                raise TypeError("empty iterable.")
+            it = iter(iterable)
+            value = next(it)
+            try:
+                for v in it:
+                    value = function_to_apply(value, v)
+            except:
+                return None
+            return value
+        else:
+            raise TypeError("'{}' object is not iterable".format(type(iterable).__name__))
+    else:
+        raise TypeError("'{}' object is not callable".format(type(function_to_apply).__name__))
