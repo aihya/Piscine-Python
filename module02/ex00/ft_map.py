@@ -9,11 +9,8 @@ def ft_map(function_to_apply, iterable):
     """
     if callable(function_to_apply):
         if hasattr(iterable, '__iter__'):
-            try:
-                for elm in iterable:
-                    yield function_to_apply(elm)
-            except:
-                yield None
+            for elm in iterable:
+                yield function_to_apply(elm)
         else:
             raise TypeError("'{}' object is not iterable".format(type(iterable).__name__))
     else:

@@ -7,6 +7,7 @@ class CsvReader:
         self.skip_bottom = skip_bottom
         self.data = []
         self.head = None
+        self.file = None
 
     def __enter__(self):
         try:
@@ -31,7 +32,8 @@ class CsvReader:
         return self
 
     def __exit__(self, __type, __value, __traceback):
-        self.file.close()
+        if self.file:
+            self.file.close()
 
     def getdata(self):
         """ Retrieves the data/records from skip_top to skip bottom.

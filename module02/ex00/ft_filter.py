@@ -9,12 +9,9 @@ def ft_filter(function_to_apply, iterable):
     """
     if callable(function_to_apply):
         if hasattr(iterable, '__iter__'):
-            try:
-                for elm in iterable:
-                    if function_to_apply is None or function_to_apply(elm):
-                        yield elm
-            except:
-                yield None
+            for elm in iterable:
+                if function_to_apply is None or function_to_apply(elm):
+                    yield elm
         else:
             raise TypeError("'{}' object is not iterable".format(type(iterable).__name__))
     else:

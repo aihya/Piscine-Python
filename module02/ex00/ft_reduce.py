@@ -14,11 +14,8 @@ def ft_reduce(function_to_apply, iterable):
                 raise TypeError("empty iterable.")
             it = iter(iterable)
             value = next(it)
-            try:
-                for v in it:
-                    value = function_to_apply(value, v)
-            except:
-                return None
+            for v in it:
+                value = function_to_apply(value, v)
             return value
         else:
             raise TypeError("'{}' object is not iterable".format(type(iterable).__name__))

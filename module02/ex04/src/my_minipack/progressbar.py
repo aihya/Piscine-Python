@@ -12,7 +12,7 @@ def ft_progress(it):
         div = "{}/{}".format(c+1, it[-1]+1)
         et = time.time() - start
 
-        print("\033[2KETA: {:.2f}s [{:3.0f}%] [{:20}] {} | elapsed time {:.2f}s\r".format(eta, per, prg, div, et), end='')
+        print("ETA: {:.2f}s [{:3.0f}%] [{:20}] {} | elapsed time {:.2f}s\r".format(eta, per, prg, div, et))
 
         t1 = time.time()
         yield c
