@@ -16,8 +16,6 @@ class ScrapBooker:
         Returns:
         new_arr: the cropped numpy.ndarray.
         None otherwise (combinaison of parameters not incompatible).
-        Raises:
-        This function should not raise any Exception.
         """
         if isinstance(array, numpy.ndarray) and isinstance(dim, tuple) == isinstance(position, tuple):
             if len(dim) == len(position) == 2 and isinstance(dim[0], int) == isinstance(dim[1], int):
@@ -34,8 +32,6 @@ class ScrapBooker:
         Returns:
         new_arr: thined numpy.ndarray.
         None otherwise (combinaison of parameters not incompatible).
-        Raises:
-        This function should not raise any Exception.
         """
         if isinstance(array, numpy.ndarray) and isinstance(n, int) == isinstance(axis, int):
             if n > 0 and axis in (0, 1):
@@ -54,8 +50,6 @@ class ScrapBooker:
         Returns:
         new_arr: juxtaposed numpy.ndarray.
         None otherwise (combinaison of parameters not incompatible).
-        Raises:
-        This function should not raise any Exception.
         """
         if isinstance(array, numpy.ndarray) and isinstance(n, int) == isinstance(axis, int):
             if n > 0 and axis in (0, 1):
