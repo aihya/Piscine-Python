@@ -26,7 +26,9 @@ def progress(it):
 def variance(centroids):
     centroids = numpy.array([c for c in centroids if len(c)])
     means = numpy.array([col.mean() for col in centroids.T])
-    return numpy.sum([(centroid  - means) ** 2 for centroid in centroids]) / len(centroids)
+    # return numpy.sum([(centroid - means) ** 2 for centroid in centroids]) / len(centroids)
+    return numpy.sum([KmeansClustering.euclidean(cent, means) for cent in centroids]) / len(centroids)
+
 
 class KmeansClustering:
 
@@ -122,13 +124,26 @@ if __name__ == "__main__":
         best_variance = 1000000000
         for epoch in progress(range(args.epochs)):
             kmc.fit(data)
+
+            invalid_centroids = False
+            for c in kmc.centroids:
+                if not c:
+                    invalid_centroids = True
+
+            if invalid_centroids:
+                continue
+
             if best_centroids == None:
                 best_centroids = copy.deepcopy(kmc.centroids)
                 continue
+
             __variance = variance(kmc.centroids)
             if __variance < best_variance:
+                print("\nNew Best Variance: {}".format(__variance))
                 best_centroids = copy.deepcopy(kmc.centroids)
                 best_variance = __variance
+
+        kmc.centroids = best_centroids
 
     except FileNotFoundError as E:
         print("{}: {}".format(type(E).__name__, args.filepath))
@@ -154,7 +169,7 @@ if __name__ == "__main__":
         clusters[p[0]] += 1
 
     print("\nFinal centroids coordinates:")
-    for i, centroid in enumerate(kmc.centroids):
+    for i, centroid in enumerate(best_centroids):
         print('Centroid {} ({}):  {}'.format(i, clusters[i], centroid))
 
     ax.set_xlabel('Height')
