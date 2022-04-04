@@ -1,24 +1,41 @@
 import pandas
 from FileLoader import FileLoader
 
+
 def howManyMedalsByCountry(df, country):
     if isinstance(df, pandas.DataFrame) and isinstance(country, str):
         medals = {}
         target = df.where(df.Team == country).dropna(how='all')
         years = sorted(list(target.Year.unique()))
-        # print(target.where(target.Year == 2016.0).where(target.Medal == 'Bronze').dropna(how='all').head(60))
-        # print(target[target.duplicated(keep=False)])
-        print(target.where(target.Year == 2016).drop_duplicates(subset=['Name', 'Event']).head(60))
+
+        team_sports = ['Basketball', 'Football', 'Tug-Of-War', 'Badminton', 'Sailing', 'Handball', 'Water Polo',
+                       'Hockey', 'Rowing', 'Bobsleigh', 'Softball', 'Volleyball', 'Synchronized Swimming', 'Baseball',
+                       'Rugby Sevens', 'Rugby', 'Lacrosse', 'Polo']
+
         for year in years:
-            activity = target.where(target.Year == year).drop_duplicates().drop_duplicates(subset=['Name', 'Event']).dropna(how='all')
-            medals[int(year)] = {'G': 0, 'S': 0, 'B': 0}
-            medals[int(year)]['G'] = activity.where(activity.Medal == 'Gold').dropna(how='all').shape[0]
-            medals[int(year)]['S'] = activity.where(activity.Medal == 'Silver').dropna(how='all').shape[0]
-            medals[int(year)]['B'] = activity.where(activity.Medal == 'Bronze').dropna(how='all').shape[0]
+            activity = target.where(target.Year == year).dropna(how='all', subset=['Medal']).sort_values('Event')
+
+            team = activity.where(activity.Sport.isin(team_sports)).dropna(how='all')
+            team = team.drop_duplicates(subset=['Event', 'Medal'])
+
+            solo = activity.where(~activity.Sport.isin(team_sports)).dropna(how='all')
+
+            medals[int(year)] = {
+                'G': team.where(team.Medal == 'Gold').dropna(how='all').shape[0],
+                'S': team.where(team.Medal == 'Silver').dropna(how='all').shape[0],
+                'B': team.where(team.Medal == 'Bronze').dropna(how='all').shape[0],
+            }
+
+            medals[int(year)] = {
+                'G': medals[int(year)]['G'] + solo.where(solo.Medal == 'Gold').dropna(how='all').shape[0],
+                'S': medals[int(year)]['S'] + solo.where(solo.Medal == 'Silver').dropna(how='all').shape[0],
+                'B': medals[int(year)]['B'] + solo.where(solo.Medal == 'Bronze').dropna(how='all').shape[0],
+            }
+
         return medals
 
 if __name__ == '__main__':
-    medals = howManyMedalsByCountry(FileLoader.load('../athlete_events.csv'), 'United States')
+    # medals = howManyMedalsByCountry(FileLoader.load('../athlete_events.csv'), 'United States')
     # for year in medals:
     #     print(year, medals[year])
 
@@ -58,7 +75,7 @@ if __name__ == '__main__':
          2012: {'G': 82, 'S': 44, 'B': 38},
          2014: {'G': 8, 'S': 28, 'B': 16},
          2016: {'G': 95, 'S': 52, 'B': 45}}
-    for year in h:
-        print(year, h[year], '\t', medals[year], '\t', h[year] == medals[year])
+    # for year in h:
+    #     print(year, h[year], '\t', medals[year], '\t', h[year] == medals[year])
 
-    # print(howManyMedalsByCountry(FileLoader.load('../athlete_events.csv'), 'United States') == )
+    print(howManyMedalsByCountry(FileLoader.load('../athlete_events.csv'), 'United States') == h)
