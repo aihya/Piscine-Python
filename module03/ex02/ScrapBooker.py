@@ -2,6 +2,7 @@ import numpy
 
 
 class ScrapBooker:
+
     def __init__(self):
         pass
 
@@ -18,8 +19,13 @@ class ScrapBooker:
         None otherwise (combinaison of parameters not incompatible).
         """
         if isinstance(array, numpy.ndarray) and isinstance(dim, tuple) == isinstance(position, tuple):
-            if len(dim) == len(position) == 2 and isinstance(dim[0], int) == isinstance(dim[1], int):
+            try:
+                assert len(dim) == len(position) == 2, None
+                assert isinstance(dim[0], int) == isinstance(dim[1], int), None
+                assert isinstance(position[0], int) == isinstance(position[1], int), None
                 return array[position[0]:position[0] + dim[0], position[1]:position[1] + dim[1]]
+            except AssertionError:
+                return None
 
     def thin(self, array, n, axis):
         """
@@ -34,7 +40,7 @@ class ScrapBooker:
         None otherwise (combinaison of parameters not incompatible).
         """
         if isinstance(array, numpy.ndarray) and isinstance(n, int) == isinstance(axis, int):
-            if n > 0 and axis in (0, 1):
+            if n > 0 and (axis == 0 or axis == 1):
                 axis = 0 if axis else 1
                 if n < array.shape[axis]:
                     to_exclude = tuple(range(n-1, array.shape[axis], n))

@@ -6,6 +6,9 @@ import copy
 
 class ColorFilter:
 
+    def __init__(self):
+        pass
+
     @staticmethod
     def invert(array):
         """
@@ -33,11 +36,11 @@ class ColorFilter:
         None: otherwise.
         """
         if isinstance(array, numpy.ndarray):
-            __blue = numpy.zeros(array.shape)
+            blue = numpy.zeros(array.shape)
             for r, pixel_row in enumerate(array):
                 for c, pixel in enumerate(pixel_row):
-                    __blue[r][c][2:] = pixel[2:]
-            return __blue
+                    blue[r][c][2:] = pixel[2:]
+            return blue
 
 
     @staticmethod
@@ -51,11 +54,11 @@ class ColorFilter:
         None: otherwise.
         """
         if isinstance(array, numpy.ndarray):
-            __green = copy.deepcopy(array)
+            green = copy.deepcopy(array)
             for r, pixel_row in enumerate(array):
                 for c, pixel in enumerate(pixel_row):
-                    __green[r][c][0], __green[r][c][2] = 0, 0
-            return __green
+                    green[r][c][0], green[r][c][2] = 0, 0
+            return green
 
 
     @staticmethod
@@ -69,11 +72,11 @@ class ColorFilter:
         None: otherwise.
         """
         if isinstance(array, numpy.ndarray):
-            __red = array - ColorFilter.to_green(array) - ColorFilter.to_blue(array)
+            red = array - ColorFilter.to_green(array) - ColorFilter.to_blue(array)
             for r, pixel_row in enumerate(array):
                 for c, pixel in enumerate(pixel_row):
-                    __red[r][c][3] = pixel[3]
-            return __red
+                    red[r][c][3] = pixel[3]
+            return red
 
     @staticmethod
     def to_celluloid(array):
@@ -132,11 +135,18 @@ class ColorFilter:
 
             if filter in ('w', 'weight'):  # Weighted mean filter
                 if len(kwargs.keys()):
-                    weights = kwargs[list(kwargs.keys())[0]]
-                    if isinstance(weights, list) and len(weights) == 3:
-                        if type(weights[0]) == float and type(weights[1]) == float and type(weights[2]) == float:
+                    try:
+                        weights = kwargs['weights']
+                        if isinstance(weights, list) and len(weights) == 3:
+                            assert isinstance(weights[0], float), None
+                            assert isinstance(weights[1], float), None
+                            assert isinstance(weights[2], float), None
                             if weights[0] + weights[1] + weights[2] == 1.0:
                                 for pixel_row in array:
                                     for pixel in pixel_row:
                                         pixel[:3] = (pixel[:3] * weights).sum()
                                 return array
+                    except KeyError:
+                        return None
+                    except AssertionError:
+                        return None

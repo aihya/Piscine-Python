@@ -3,6 +3,9 @@ import numpy
 
 class NumPyCreator:
 
+    def __init__(self):
+        pass
+
     @staticmethod
     def from_list(lst):
         if type(lst) != list:
@@ -32,7 +35,7 @@ class NumPyCreator:
         if type(shape) != tuple or type(value) not in [int, float]:
             return None
         for elm in shape:
-            if type(elm) != int:
+            if type(elm) != int or elm < 0:
                 return None
         array = numpy.zeros(shape)
         if value:
@@ -50,6 +53,6 @@ class NumPyCreator:
 
     @staticmethod
     def identity(n):
-        if type(n) != int:
+        if type(n) != int or n < 0:
             return None
         return numpy.identity(n)

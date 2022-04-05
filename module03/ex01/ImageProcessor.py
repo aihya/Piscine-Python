@@ -4,6 +4,9 @@ import matplotlib.image as mplimg
 
 class ImageProcessor:
 
+    def __init__(self):
+        pass
+
     @staticmethod
     def load(path):
         if type(path) == str and path.endswith('.png'):

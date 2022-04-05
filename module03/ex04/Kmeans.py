@@ -118,10 +118,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     kmc = KmeansClustering(args.max_iter, args.ncentroid)
+    best_centroids = None
+    best_variance = 1000000000
     try:
         data = numpy.array(pandas.read_csv(args.filepath, sep=',').iloc[:, 1:])
-        best_centroids = None
-        best_variance = 1000000000
+
         for epoch in progress(range(args.epochs)):
             kmc.fit(data)
 
