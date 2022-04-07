@@ -12,7 +12,7 @@ def progress(it):
     t2 = 0.0
     for c in it:
         eta = (t2 - t1) * (it[-1] - c)
-        per = ((c * 100) // it[-1])
+        per = ((c * 100) // (it[-1] + 1))
         prg = "{}>".format('=' * ((int(per) // 5) - 1))
         div = "{}/{}".format(c+1, it[-1]+1)
         et = time.time() - start
@@ -23,11 +23,16 @@ def progress(it):
         yield c
         t2 = time.time()
 
-def variance(centroids):
-    centroids = numpy.array([c for c in centroids if len(c)])
-    means = numpy.array([col.mean() for col in centroids.T])
-    # return numpy.sum([(centroid - means) ** 2 for centroid in centroids]) / len(centroids)
-    return numpy.sum([KmeansClustering.euclidean(cent, means) for cent in centroids]) / len(centroids)
+
+def variance(kmc, data):
+    clusters = [0] * kmc.ncentroid
+
+    pred = kmc.predict(data)
+    for p in pred:
+        clusters[p[0]] += 1
+
+    mean = sum(clusters) / kmc.ncentroid
+    return sum([(cluster - mean) ** 2 for cluster in clusters]) / kmc.ncentroid
 
 
 class KmeansClustering:
@@ -63,9 +68,7 @@ class KmeansClustering:
         for n in range(self.ncentroid):
             self.centroids.append([])
             for limit in limits:
-                high = limit[1] - limit[0]
-                low = limit[0]
-                self.centroids[-1].append(numpy.random.random() * high + low)
+                self.centroids[-1].append(numpy.random.random() * (limit[1] - limit[0]) + limit[0])
 
     def fit(self, X):
         """
@@ -79,9 +82,6 @@ class KmeansClustering:
 
         # Initialize centroids.
         self.init_centroids(KmeansClustering.get_limits(X))
-        # print("Initial centroids coordinates:")
-        # for i, centroid in enumerate(self.centroids):
-        #     print('Centroid {}:  {}'.format(i, centroid))
         for _ in range(self.max_iter):
             clusters = [[] for _ in range(self.ncentroid)]
             # Find target cluster of each point.
@@ -138,7 +138,7 @@ if __name__ == "__main__":
                 best_centroids = copy.deepcopy(kmc.centroids)
                 continue
 
-            __variance = variance(kmc.centroids)
+            __variance = variance(kmc, data)
             if __variance < best_variance:
                 print("\nNew Best Variance: {}".format(__variance))
                 best_centroids = copy.deepcopy(kmc.centroids)
@@ -146,34 +146,36 @@ if __name__ == "__main__":
 
         kmc.centroids = best_centroids
 
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+        colors = [[numpy.random.random(),
+                   numpy.random.random(),
+                   numpy.random.random()] for _ in range(args.ncentroid)]
+
+        # Put all centroids on the scatter plot
+        for i, centroid in enumerate(kmc.centroids):
+            if len(centroid):
+                ax.scatter(centroid[0], centroid[1], centroid[2], marker='^', color=colors[i], edgecolor='black', s=50)
+
+        pred = kmc.predict(data)
+        clusters = [0] * args.ncentroid
+
+        # Put all data points on the scatter plot
+        for i, p in enumerate(pred):
+            ax.scatter(data[i][0], data[i][1], data[i][2], color=colors[p[0]], s=10)
+            clusters[p[0]] += 1
+
+        print("\nFinal centroids coordinates:")
+        for i, centroid in enumerate(best_centroids):
+            print('Centroid {} ({}): {}'.format(i, clusters[i], centroid))
+
+        ax.set_xlabel('Height')
+        ax.set_ylabel('Weight')
+        ax.set_zlabel('Density')
+        plt.show()
+
     except FileNotFoundError as E:
         print("{}: {}".format(type(E).__name__, args.filepath))
         exit(1)
     except AssertionError:
         exit(1)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    colors = [[numpy.random.random(), numpy.random.random(), numpy.random.random()] for _ in range(args.ncentroid)]
-
-    # Put all centroids on the scatter plot
-    for i, centroid in enumerate(kmc.centroids):
-        if len(centroid):
-            ax.scatter(centroid[0], centroid[1], centroid[2], marker='^', color=colors[i], edgecolor='black', s=50)
-
-    pred = kmc.predict(data)
-    clusters = [0] * args.ncentroid
-
-    # Put all data points on the scatter plot
-    for i, p in enumerate(pred):
-        ax.scatter(data[i][0], data[i][1], data[i][2], color=colors[p[0]], s=20)
-        clusters[p[0]] += 1
-
-    print("\nFinal centroids coordinates:")
-    for i, centroid in enumerate(best_centroids):
-        print('Centroid {} ({}):  {}'.format(i, clusters[i], centroid))
-
-    ax.set_xlabel('Height')
-    ax.set_ylabel('Weight')
-    ax.set_zlabel('Density')
-    plt.show()

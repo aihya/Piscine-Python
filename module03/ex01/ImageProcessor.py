@@ -21,3 +21,18 @@ class ImageProcessor:
     def display(array):
         plt.imshow(array)
         plt.show()
+
+
+def deco(func, *args, **kward):
+    def wrapper():
+        print("WEE")
+        var = func(*args, **kwargs)
+        return var
+    return wrapper
+
+
+@deco
+def f(l):
+    sum(l)
+
+f()
