@@ -1,4 +1,5 @@
-import pandas as pd
+import pandas
+
 
 def youngestfellah(df, year):
     """
@@ -10,8 +11,9 @@ def youngestfellah(df, year):
     dct: dictionary with 2 keys for female and male athlete.
     """
     result = {'f': 'nan', 'm': 'nan'}
-    if not isinstance(df, pd.DataFrame) or not isinstance(year, int):
+    if not isinstance(df, pandas.DataFrame) or not isinstance(year, int):
         return result
-    result['f'] = df.where(df.Sex == 'F').where(df.Year == year)['Age'].min()
-    result['m'] = df.where(df.Sex == 'M').where(df.Year == year)['Age'].min()
+    result = df.where(df.Year == year)
+    result['f'] = result.where(result.Sex == 'F')['Age'].min()
+    result['m'] = result.where(result.Sex == 'M')['Age'].min()
     return result

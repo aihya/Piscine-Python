@@ -1,5 +1,4 @@
-import pandas as pd
-
+import pandas
 
 def proportionBySport(df, year, sport, sex):
     sel = df.where(df.Sex == sex).where(df.Year == year).where(df.Sport == sport)
