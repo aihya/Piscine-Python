@@ -10,7 +10,7 @@ class FileLoader:
                 data = pd.read_csv(path, sep=',')
                 print(f'Loading data set of dimensions: {data.shape[0]} x {data.shape[1]}')
                 return data
-            except FileNotFoundError as E:
+            except FileNotFoundError:
                 return None
 
     @staticmethod
